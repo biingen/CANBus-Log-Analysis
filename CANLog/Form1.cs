@@ -1231,6 +1231,7 @@ namespace CANLog
                         current = commandValue[1];
                         power = commandValue[2];
                         sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
+                        receive_PowerSupply = "ReceivePort";
                     }
                     else if (content.Contains(send_ACSource))
                     {
@@ -1251,6 +1252,7 @@ namespace CANLog
                         power = commandValue[6];
                         powerfactor = commandValue[8];
                         sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
+                        receive_ACSource = "ReceivePort";
                     }
                 }
                 sw.Close();
