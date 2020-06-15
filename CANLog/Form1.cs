@@ -56,7 +56,6 @@ namespace CANLog
         private void button_SelectFileClick(object sender, EventArgs e)
         {
             OpenFileDialog path = new OpenFileDialog();
-            path.FileName = "Select a text file";
             path.InitialDirectory = logPathParameters;
             path.Filter = "Text files (*.txt)|*.txt";
             path.Title = "Open text file";
@@ -75,6 +74,8 @@ namespace CANLog
         string line_CAN_ID = string.Empty;
         string line_CAN_DATA = string.Empty;
 
+        //Raw data for Temperature, Voltage, Currnet, Power
+        string temperature = "0", voltage = "0", current = "0", power = "0";
 
         // Command and response 
         List<string> commandList = new List<string>();
@@ -1183,23 +1184,52 @@ namespace CANLog
                 txtFileName = fileName + ".csv";
                 csvDestination = Path.Combine(Path.GetDirectoryName(docPath), txtFileName);
                 StreamWriter sw = new StreamWriter(csvDestination);
-                sw.WriteLine("Voltage Sent,Voltage Received");
+                sw.WriteLine("Time, Temperature, Voltage, Current, Power");
+                string start_Time = "";
+                string receive_PowerSupply = "ReceivePort";
 
                 foreach (string content in readContent)
                 {
-                    //Get command from log
-                    string command_PowerSupply = "VSET1:";
-                    string response_PowerSupply = "+";
-                    if (content.Contains(command_PowerSupply)) //Check if this line is a Power Supply command
+                    string[] brackets_Time = content.Split('[');
+                    if (start_Time == "")
                     {
-                        string[] commandSplit = content.Split(',');
-                        string[] commandValue = commandSplit[6].Split(':');
-                        sw.Write(commandValue[1] + ",");
+                        start_Time = brackets_Time[2].Substring(0,19);
                     }
-                    else if (content.Contains(response_PowerSupply))
+
+                    //Get command from log
+                    string response_Temperature = "[Temperature]";
+                    string send_PowerSupply = "PowerSupply";
+                    string[] brackets = content.Split(']');
+                    if (content.Contains(response_Temperature)) //Check if this line is a Power Supply command
                     {
-                        string[] responseSplit = content.Split(new string[] { "]  " }, StringSplitOptions.None);
-                        sw.WriteLine(responseSplit[1]);
+                        string end_Time = brackets_Time[2].Substring(0, 19);
+                        DateTime start = Convert.ToDateTime(start_Time);
+                        DateTime end = Convert.ToDateTime(end_Time);
+                        TimeSpan ts = end.Subtract(start); //兩時間天數相減
+                        double seconds_Count = ts.Seconds; //相距秒數
+                        sw.Write(seconds_Count + ",");
+                        string[] commandValue = content.Split('=');
+                        temperature = commandValue[1];
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power);
+                    }
+                    else if (content.Contains(send_PowerSupply))
+                    {
+                        string[] contentValue = content.Split(',');
+                        receive_PowerSupply = "Receive_Port_" + contentValue[3];
+                    }
+                    else if (content.Contains(receive_PowerSupply))
+                    {
+                        string end_Time = brackets_Time[2].Substring(0, 19);
+                        DateTime start = Convert.ToDateTime(start_Time);
+                        DateTime end = Convert.ToDateTime(end_Time);
+                        TimeSpan ts = end.Subtract(start); //兩時間天數相減
+                        double seconds_Count = ts.Seconds; //相距秒數
+                        sw.Write(seconds_Count + ",");
+                        string[] commandValue = brackets[2].Split(',');
+                        voltage = commandValue[0].Trim();
+                        current = commandValue[1];
+                        power = commandValue[2];
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power);
                     }
 
                 }
