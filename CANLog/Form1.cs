@@ -75,7 +75,7 @@ namespace CANLog
         string line_CAN_DATA = string.Empty;
 
         //Raw data for Temperature, Voltage, Currnet, Power
-        string temperature = "0", voltage = "0", current = "0", power = "0";
+        string temperature = "0", voltage = "0", current = "0", power = "0", powerfactor = "0";
 
         // Command and response 
         List<string> commandList = new List<string>();
@@ -1184,9 +1184,9 @@ namespace CANLog
                 txtFileName = fileName + ".csv";
                 csvDestination = Path.Combine(Path.GetDirectoryName(docPath), txtFileName);
                 StreamWriter sw = new StreamWriter(csvDestination);
-                sw.WriteLine("Time, Temperature, Voltage, Current, Power");
+                sw.WriteLine("Time, Temperature, Voltage, Current, Power, PowerFactor");
                 string start_Time = "";
-                string receive_PowerSupply = "ReceivePort";
+                string receive_PowerSupply = "ReceivePort", receive_ACSource = "ReceivePort";
 
                 foreach (string content in readContent)
                 {
@@ -1199,6 +1199,7 @@ namespace CANLog
                     //Get command from log
                     string response_Temperature = "[Temperature]";
                     string send_PowerSupply = "PowerSupply";
+                    string send_ACSource = "ACSource";
                     string[] brackets = content.Split(']');
                     if (content.Contains(response_Temperature)) //Check if this line is a Power Supply command
                     {
@@ -1210,7 +1211,7 @@ namespace CANLog
                         sw.Write(seconds_Count + ",");
                         string[] commandValue = content.Split('=');
                         temperature = commandValue[1];
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power);
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
                     }
                     else if (content.Contains(send_PowerSupply))
                     {
@@ -1229,9 +1230,28 @@ namespace CANLog
                         voltage = commandValue[0].Trim();
                         current = commandValue[1];
                         power = commandValue[2];
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power);
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
                     }
-
+                    else if (content.Contains(send_ACSource))
+                    {
+                        string[] contentValue = content.Split(',');
+                        receive_ACSource = "Receive_Port_" + contentValue[3];
+                    }
+                    else if (content.Contains(receive_ACSource))
+                    {
+                        string end_Time = brackets_Time[2].Substring(0, 19);
+                        DateTime start = Convert.ToDateTime(start_Time);
+                        DateTime end = Convert.ToDateTime(end_Time);
+                        TimeSpan ts = end.Subtract(start); //兩時間天數相減
+                        double seconds_Count = ts.Seconds; //相距秒數
+                        sw.Write(seconds_Count + ",");
+                        string[] commandValue = brackets[2].Split(',');
+                        voltage = commandValue[4];
+                        current = commandValue[5];
+                        power = commandValue[6];
+                        powerfactor = commandValue[8];
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
+                    }
                 }
                 sw.Close();
                 MessageBox.Show("Test log decoding is finished.", "Message");
