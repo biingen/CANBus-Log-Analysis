@@ -1207,8 +1207,10 @@ namespace CANLog
                         DateTime start = Convert.ToDateTime(start_Time);
                         DateTime end = Convert.ToDateTime(end_Time);
                         TimeSpan ts = end.Subtract(start); //兩時間天數相減
-                        double seconds_Count = ts.Seconds; //相距秒數
-                        sw.Write(seconds_Count + ",");
+                        //double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds; //相距秒數
+                        //sw.Write(seconds_Count + ",");
+                        double minutes_Count = ts.Hours * 60 + ts.Minutes; //相距分數
+                        sw.Write(minutes_Count + ",");
                         string[] commandValue = content.Split('=');
                         temperature = commandValue[1];
                         sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
@@ -1224,8 +1226,10 @@ namespace CANLog
                         DateTime start = Convert.ToDateTime(start_Time);
                         DateTime end = Convert.ToDateTime(end_Time);
                         TimeSpan ts = end.Subtract(start); //兩時間天數相減
-                        double seconds_Count = ts.Seconds; //相距秒數
-                        sw.Write(seconds_Count + ",");
+                        //double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds; //相距秒數
+                        //sw.Write(seconds_Count + ",");
+                        double minutes_Count = ts.Hours * 60 + ts.Minutes; //相距分數
+                        sw.Write(minutes_Count + ",");
                         string[] commandValue = brackets[2].Split(',');
                         voltage = commandValue[0].Trim();
                         current = commandValue[1];
@@ -1244,8 +1248,10 @@ namespace CANLog
                         DateTime start = Convert.ToDateTime(start_Time);
                         DateTime end = Convert.ToDateTime(end_Time);
                         TimeSpan ts = end.Subtract(start); //兩時間天數相減
-                        double seconds_Count = ts.Seconds; //相距秒數
-                        sw.Write(seconds_Count + ",");
+                        //double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds; //相距秒數
+                        //sw.Write(seconds_Count + ",");
+                        double minutes_Count = ts.Hours * 60 + ts.Minutes; //相距分數
+                        sw.Write(minutes_Count + ",");
                         string[] commandValue = brackets[2].Split(',');
                         voltage = commandValue[4];
                         current = commandValue[5];
