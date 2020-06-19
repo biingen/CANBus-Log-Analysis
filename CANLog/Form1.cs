@@ -1184,7 +1184,7 @@ namespace CANLog
                 txtFileName = fileName + ".csv";
                 csvDestination = Path.Combine(Path.GetDirectoryName(docPath), txtFileName);
                 StreamWriter sw = new StreamWriter(csvDestination);
-                sw.WriteLine("Time, Temperature, Voltage, Current, Power, PowerFactor");
+                sw.WriteLine("Time, Temperature, Voltage, Current, Power, PowerFactor, PB07_Status, PB01_Status, PA15_Status, PA14_Status, PA11_Status, PA10_Status");
                 string start_Time = "";
                 string receive_PowerSupply = "ReceivePort", receive_ACSource = "ReceivePort";
 
@@ -1200,8 +1200,16 @@ namespace CANLog
                     string response_Temperature = "Receive_Temperature";
                     string send_PowerSupply = "PowerSupply";
                     string send_ACSource = "ACSource";
+                    string send_Schedule = "Schedule";
                     string[] brackets = content.Split(']');
-                    if (content.Contains(response_Temperature)) //Check if this line is a Power Supply command
+
+                    if (content.Contains(send_Schedule))    //Check if this line is a Schedule command
+                    {
+                        receive_ACSource = "ReceivePort";
+                        receive_PowerSupply = "ReceivePort";
+                    }
+
+                    if (content.Contains(response_Temperature))    //Check if this line is a Temperature command
                     {
                         string end_Time = brackets_Time[2].Substring(0, 19);
                         DateTime start = Convert.ToDateTime(start_Time);
@@ -1215,12 +1223,12 @@ namespace CANLog
                         temperature = commandValue[1];
                         sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
                     }
-                    else if (content.Contains(send_PowerSupply))
+                    else if (content.Contains(send_PowerSupply))    //Check if this line is a DC Power Supply command
                     {
                         string[] contentValue = content.Split(',');
                         receive_PowerSupply = "Receive_Port_" + contentValue[3];
                     }
-                    else if (content.Contains(receive_PowerSupply))
+                    else if (content.Contains(receive_PowerSupply))    //Check if this line is a DC Power Supply command
                     {
                         string end_Time = brackets_Time[2].Substring(0, 19);
                         DateTime start = Convert.ToDateTime(start_Time);
@@ -1235,14 +1243,13 @@ namespace CANLog
                         current = commandValue[1];
                         power = commandValue[2];
                         sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
-                        receive_PowerSupply = "ReceivePort";
                     }
-                    else if (content.Contains(send_ACSource))
+                    else if (content.Contains(send_ACSource))    //Check if this line is a AC Power Supply command
                     {
                         string[] contentValue = content.Split(',');
                         receive_ACSource = "Receive_Port_" + contentValue[3];
                     }
-                    else if (content.Contains(receive_ACSource))
+                    else if (content.Contains(receive_ACSource))    //Check if this line is a AC Power Supply command
                     {
                         string end_Time = brackets_Time[2].Substring(0, 19);
                         DateTime start = Convert.ToDateTime(start_Time);
@@ -1258,7 +1265,6 @@ namespace CANLog
                         power = commandValue[6];
                         powerfactor = commandValue[8];
                         sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
-                        receive_ACSource = "ReceivePort";
                     }
                 }
                 sw.Close();
