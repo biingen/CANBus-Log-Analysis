@@ -75,7 +75,7 @@ namespace CANLog
         string line_CAN_DATA = string.Empty;
 
         //Raw data for Temperature, Voltage, Currnet, Power
-        string temperature = "0", voltage = "0", current = "0", power = "0", powerfactor = "0";
+        string temperature = "0", voltage = "0", current = "0", power = "0", powerfactor = "0", gpiostatus = "0,0,0,0,0,0";
 
         // Command and response 
         List<string> commandList = new List<string>();
@@ -1200,28 +1200,32 @@ namespace CANLog
                     string response_Temperature = "Receive_Temperature";
                     string send_PowerSupply = "PowerSupply";
                     string send_ACSource = "ACSource";
-                    string send_Schedule = "Schedule";
+                    string response_GPIOstatus = "Receive_IO_INPUT";
                     string[] brackets = content.Split(']');
 
-                    if (content.Contains(send_Schedule))    //Check if this line is a Schedule command
-                    {
-                        receive_ACSource = "ReceivePort";
-                        receive_PowerSupply = "ReceivePort";
-                    }
+                    // Calulate log timer information
+                    string end_Time = brackets_Time[2].Substring(0, 19);
+                    DateTime start = Convert.ToDateTime(start_Time);
+                    DateTime end = Convert.ToDateTime(end_Time);
+                    TimeSpan ts = end.Subtract(start); //兩時間天數相減
+                    double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds; //相距秒數
+                    double minutes_Count = ts.Hours * 60 + ts.Minutes; //相距分數
 
                     if (content.Contains(response_Temperature))    //Check if this line is a Temperature command
                     {
-                        string end_Time = brackets_Time[2].Substring(0, 19);
-                        DateTime start = Convert.ToDateTime(start_Time);
-                        DateTime end = Convert.ToDateTime(end_Time);
-                        TimeSpan ts = end.Subtract(start); //兩時間天數相減
-                        double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds; //相距秒數
                         sw.Write(seconds_Count + ",");
-                        //double minutes_Count = ts.Hours * 60 + ts.Minutes; //相距分數
                         //sw.Write(minutes_Count + ",");
                         string[] commandValue = content.Split('=');
                         temperature = commandValue[1];
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
+                    }
+                    else if (content.Contains(response_GPIOstatus))    //Check if this line is a GPIO status command
+                    {
+                        sw.Write(seconds_Count + ",");
+                        //sw.Write(minutes_Count + ",");
+                        string[] commandValue = content.Split('=');
+                        gpiostatus = commandValue[1];
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
                     }
                     else if (content.Contains(send_PowerSupply))    //Check if this line is a DC Power Supply command
                     {
@@ -1230,19 +1234,14 @@ namespace CANLog
                     }
                     else if (content.Contains(receive_PowerSupply))    //Check if this line is a DC Power Supply command
                     {
-                        string end_Time = brackets_Time[2].Substring(0, 19);
-                        DateTime start = Convert.ToDateTime(start_Time);
-                        DateTime end = Convert.ToDateTime(end_Time);
-                        TimeSpan ts = end.Subtract(start); //兩時間天數相減
-                        double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds; //相距秒數
                         sw.Write(seconds_Count + ",");
-                        //double minutes_Count = ts.Hours * 60 + ts.Minutes; //相距分數
                         //sw.Write(minutes_Count + ",");
                         string[] commandValue = brackets[2].Split(',');
                         voltage = commandValue[0].Trim();
                         current = commandValue[1];
                         power = commandValue[2];
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
+                        receive_PowerSupply = "ReceivePort";
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
                     }
                     else if (content.Contains(send_ACSource))    //Check if this line is a AC Power Supply command
                     {
@@ -1251,20 +1250,15 @@ namespace CANLog
                     }
                     else if (content.Contains(receive_ACSource))    //Check if this line is a AC Power Supply command
                     {
-                        string end_Time = brackets_Time[2].Substring(0, 19);
-                        DateTime start = Convert.ToDateTime(start_Time);
-                        DateTime end = Convert.ToDateTime(end_Time);
-                        TimeSpan ts = end.Subtract(start); //兩時間天數相減
-                        double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds; //相距秒數
                         sw.Write(seconds_Count + ",");
-                        //double minutes_Count = ts.Hours * 60 + ts.Minutes; //相距分數
                         //sw.Write(minutes_Count + ",");
                         string[] commandValue = brackets[2].Split(',');
                         voltage = commandValue[4];
                         current = commandValue[5];
                         power = commandValue[6];
                         powerfactor = commandValue[8];
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor);
+                        receive_ACSource = "ReceivePort";
+                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
                     }
                 }
                 sw.Close();
