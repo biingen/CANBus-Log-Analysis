@@ -57,7 +57,7 @@
             this.textBox_Path.SelectedText = "";
             this.textBox_Path.SelectionLength = 0;
             this.textBox_Path.SelectionStart = 0;
-            this.textBox_Path.Size = new System.Drawing.Size(356, 23);
+            this.textBox_Path.Size = new System.Drawing.Size(356, 28);
             this.textBox_Path.TabIndex = 4;
             this.textBox_Path.TabStop = false;
             this.textBox_Path.UseSystemPasswordChar = false;
@@ -74,7 +74,7 @@
             this.button_SelectFile.MouseState = MaterialSkin.MouseState.HOVER;
             this.button_SelectFile.Name = "button_SelectFile";
             this.button_SelectFile.Primary = false;
-            this.button_SelectFile.Size = new System.Drawing.Size(100, 36);
+            this.button_SelectFile.Size = new System.Drawing.Size(120, 36);
             this.button_SelectFile.TabIndex = 7;
             this.button_SelectFile.Text = "Select File";
             this.button_SelectFile.UseVisualStyleBackColor = true;
@@ -152,11 +152,11 @@
             this.groupBox2.Size = new System.Drawing.Size(343, 67);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Power Supply Log";
+            this.groupBox2.Text = "Power Supply and Temperature Log";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(534, 334);

@@ -1193,7 +1193,7 @@ namespace CANLog
                     string[] brackets_Time = content.Split('[');
                     if (start_Time == "")
                     {
-                        start_Time = brackets_Time[2].Substring(0,19);
+                        start_Time = brackets_Time[2].Substring(0, 23);
                     }
 
                     //Get command from log
@@ -1204,11 +1204,11 @@ namespace CANLog
                     string[] brackets = content.Split(']');
 
                     // Calulate log timer information
-                    string end_Time = brackets_Time[2].Substring(0, 19);
+                    string end_Time = brackets_Time[2].Substring(0, 23);
                     DateTime start = Convert.ToDateTime(start_Time);
                     DateTime end = Convert.ToDateTime(end_Time);
                     TimeSpan ts = end.Subtract(start); //兩時間天數相減
-                    double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds; //相距秒數
+                    double seconds_Count = ts.Hours * 60 * 60 + ts.Minutes * 60 + ts.Seconds + ts.Milliseconds * 0.001; //相距秒數
                     double minutes_Count = ts.Hours * 60 + ts.Minutes; //相距分數
 
                     if (content.Contains(response_Temperature))    //Check if this line is a Temperature command
