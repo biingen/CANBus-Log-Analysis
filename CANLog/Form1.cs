@@ -75,7 +75,7 @@ namespace CANLog
         string line_CAN_DATA = string.Empty;
 
         //Raw data for Temperature, Voltage, Currnet, Power
-        string temperature = "0", voltage = "0", current = "0", power = "0", powerfactor = "0", gpiostatus = "0,0,0,0,0,0";
+        string temperature_channel = "0", temperature_value = "0", voltage = "0", current = "0", power = "0", powerfactor = "0", gpiostatus = "0,0,0,0,0,0";
 
         // Command and response 
         List<string> commandList = new List<string>();
@@ -1215,9 +1215,11 @@ namespace CANLog
                     {
                         sw.Write(seconds_Count + ",");
                         //sw.Write(minutes_Count + ",");
+                        string[] commandCH = content.Split(':');
                         string[] commandValue = content.Split('=');
-                        temperature = commandValue[1];
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
+                        temperature_channel = commandCH[3].Substring(0, 2);
+                        temperature_value = commandValue[1];
+                        sw.WriteLine(temperature_channel + "," + temperature_value + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
                     }
                     else if (content.Contains(response_GPIOstatus))    //Check if this line is a GPIO status command
                     {
@@ -1225,7 +1227,7 @@ namespace CANLog
                         //sw.Write(minutes_Count + ",");
                         string[] commandValue = content.Split('=');
                         gpiostatus = commandValue[1];
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
+                        sw.WriteLine(temperature_channel + "," + temperature_value + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
                     }
                     else if (content.Contains(send_PowerSupply))    //Check if this line is a DC Power Supply command
                     {
@@ -1241,7 +1243,7 @@ namespace CANLog
                         current = commandValue[1];
                         power = commandValue[2];
                         receive_PowerSupply = "ReceivePort";
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
+                        sw.WriteLine(temperature_channel + "," + temperature_value + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
                     }
                     else if (content.Contains(send_ACSource))    //Check if this line is a AC Power Supply command
                     {
@@ -1258,7 +1260,7 @@ namespace CANLog
                         power = commandValue[6];
                         powerfactor = commandValue[8];
                         receive_ACSource = "ReceivePort";
-                        sw.WriteLine(temperature + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
+                        sw.WriteLine(temperature_channel + "," + temperature_value + "," + voltage + "," + current + "," + power + "," + powerfactor + "," + gpiostatus);
                     }
                 }
                 sw.Close();
